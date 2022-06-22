@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: 'loja'
+  profiles:
+    active: local
+  config:
+    import: optional:configserver:http://localhost:8888
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8080
+feign:
+  circuitbreaker:
+    enabled: true
+
+

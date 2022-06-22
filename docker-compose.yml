@@ -1,0 +1,88 @@
+version: "3.5"
+services:
+  config-server:
+    build: 
+      dockerfile: ./config-server/Dockerfile
+      context: .
+    image: config-server/alpine:1.0
+    container_name: app-config-server
+    ports:
+      - 8888:8888
+    depends_on: 
+      - my-sql-db
+    networks:
+      - minha-rede-compose
+  eureka:
+    build: 
+      dockerfile: ./eureka/Dockerfile
+      context: .
+    image: eureka/alpine:1.0
+    container_name: app-eureka
+    ports:
+      - 8761:8761
+    networks:
+      - minha-rede-compose
+    depends_on:
+      - config-server
+  fornecedor:
+    build: 
+      dockerfile: ./fornecedor/Dockerfile
+      context: .
+    ports:
+      - "8082:8082"
+      # - "9090:9090"
+    environment:
+      - spring.profiles.active=docker
+      # - server.port=9090
+    image: fornecedor/alpine:1.0
+    container_name: app-fornecedor
+    networks:
+      - minha-rede-compose
+    depends_on:
+      - eureka
+      - config-server
+      - my-sql-db
+  loja:
+    build: 
+      dockerfile: ./loja/Dockerfile
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      - spring.profiles.active=docker
+    image: loja/alpine:1.0
+    container_name: app-loja
+    networks:
+      - minha-rede-compose
+    depends_on:
+      - eureka
+      - config-server
+      - my-sql-db
+  my-sql-db:
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+    image:  mysql:5.7
+    container_name: bd-mysql
+    volumes:
+      - ./script-banco-de-dados/script.sql:/docker-entrypoint-initdb.d/script.sql
+    ports:
+      - 3307:3306
+    networks:
+      - minha-rede-compose
+  transportador:
+    build: 
+      dockerfile: ./transportador/Dockerfile
+      context: .
+    image: transportador/alpine:1.0
+    environment:
+      - spring.profiles.active=docker
+    container_name: app-transportador
+    ports:
+      - "83:83"
+    networks:
+      - minha-rede-compose
+    depends_on:
+      - eureka
+networks:
+  minha-rede-compose:
+    driver: bridge

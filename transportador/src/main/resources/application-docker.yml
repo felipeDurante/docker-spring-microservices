@@ -1,0 +1,15 @@
+spring:
+#  profiles:
+#    active: docker
+  config:
+    import: configserver:http://app-config-server:8888
+#  application:
+#    name: 'fornecedor'
+#server:
+#  port: 8081
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://app-eureka:8761/eureka/
